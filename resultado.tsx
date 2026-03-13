@@ -36,12 +36,15 @@ const styles = StyleSheet.create({
 
   container: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     padding: 20,
-    backgroundColor: "#fff"
+    backgroundColor: "#468a87"
   },
 
   titulo: {
+    justifyContent: 'center',
+    alignItems: 'center',
     fontSize: 24,
     marginBottom: 20
   }

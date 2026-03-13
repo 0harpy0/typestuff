@@ -59,22 +59,28 @@ export default function Index() {
 const styles = StyleSheet.create({
 
   container: {
-    flex: 1,
+    flex: 1, // FOCA TUDO NO CENTRO
+    alignItems: 'center',
     justifyContent: "center",
     padding: 20,
-    backgroundColor: "#fff"
+    backgroundColor: "#468a87"
   },
 
   titulo: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
     fontSize: 24,
     marginBottom: 20,
     color: "#000"
   },
 
   input: {
+    display: 'flex',
     width: "50%",
     borderWidth: 1,
     justifyContent: "center",
+    alignItems: 'center',
     padding: 10,
     marginBottom: 15,
     backgroundColor: "#fff",
