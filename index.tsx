@@ -1,6 +1,16 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Alert, Button, StyleSheet, Text, TextInput, View } from "react-native";
+import {
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Index() {
 
@@ -15,7 +25,6 @@ export default function Index() {
     }
 
     try {
-
       const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
       const data = await response.json();
 
@@ -36,55 +45,92 @@ export default function Index() {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.safe}>
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+      >
 
-      <Text style={styles.titulo}>Consulta de CEP</Text>
+        <View style={styles.card}>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Digite o CEP"
-        placeholderTextColor="#666"
-        keyboardType="numeric"
-        maxLength={8}
-        value={cep}
-        onChangeText={setCep}
-      />
+          <Text style={styles.titulo}>Consulta de CEP</Text>
 
-      <Button title="Buscar" onPress={buscarCep} />
+          <TextInput
+            style={styles.input}
+            placeholder="Digite o CEP"
+            placeholderTextColor="#666"
+            keyboardType="numeric"
+            maxLength={8}
+            value={cep}
+            onChangeText={setCep}
+          />
 
-    </View>
+          <TouchableOpacity style={styles.botao} onPress={buscarCep}>
+            <Text style={styles.botaoTexto}>Buscar</Text>
+          </TouchableOpacity>
+
+        </View>
+
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
 
-  container: {
-    flex: 1, // FOCA TUDO NO CENTRO
-    alignItems: 'center',
-    justifyContent: "center",
-    padding: 20,
+  safe: {
+    flex: 1,
     backgroundColor: "#468a87"
   },
 
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20
+  },
+
+  card: {
+    width: "100%", // 🔥 ocupa bem a tela
+    maxWidth: 400, // 🔥 limita em telas grandes
+    backgroundColor: "#fff",
+    padding: 20,
+    borderRadius: 12,
+    elevation: 5,
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 2 }
+  },
+
   titulo: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
     fontSize: 24,
+    fontWeight: "bold",
     marginBottom: 20,
-    color: "#000"
+    textAlign: "center"
   },
 
   input: {
-    display: 'flex',
-    width: "50%",
+    width: "100%", // 🔥 agora responsivo
     borderWidth: 1,
-    justifyContent: "center",
-    alignItems: 'center',
-    padding: 10,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    padding: 12,
     marginBottom: 15,
     backgroundColor: "#fff",
     color: "#000"
+  },
+
+  botao: {
+    backgroundColor: "#468a87",
+    padding: 15,
+    borderRadius: 8,
+    alignItems: "center"
+  },
+
+  botaoTexto: {
+    color: "#fff",
+    fontWeight: "bold"
   }
 
 });
