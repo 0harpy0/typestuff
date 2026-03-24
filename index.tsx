@@ -1,7 +1,5 @@
-import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
-  Alert,
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
@@ -15,9 +13,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 export default function Index() {
 
   const [cep, setCep] = useState("");
-  const router = useRouter();
+  const [endereco, setEndereco] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [erro, setErro] = useState("");
 
-  // 🔥 função para formatar o CEP com hífen
+  // 🔥 formata o CEP
   const formatCep = (value: string) => {
     const numbers = value.replace(/\D/g, "");
 
@@ -27,32 +27,36 @@ export default function Index() {
 
   const buscarCep = async () => {
 
-    // 🔥 remove o hífen antes de validar/enviar
     const cepLimpo = cep.replace("-", "");
 
+    // limpa estados antes da busca
+    setErro("");
+    setEndereco(null);
+
     if (!/^[0-9]{8}$/.test(cepLimpo)) {
-      Alert.alert("Erro", "Digite um CEP válido com 8 números.");
+      setErro("Digite um CEP válido com 8 números.");
       return;
     }
 
     try {
+      setLoading(true);
+
       const response = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
       const data = await response.json();
 
-      if (data.erro) {
-        Alert.alert("CEP não encontrado");
+      // 🔥 validação mais forte
+      if (data.erro || !data.cep) {
+        setErro("CEP não encontrado.");
         return;
       }
 
-      router.push({
-        pathname: "/resultado",
-        params: { dados: JSON.stringify(data) }
-      });
+      setEndereco(data);
 
     } catch {
-      Alert.alert("Erro", "Falha ao consultar o CEP.");
+      setErro("Erro ao consultar o CEP.");
+    } finally {
+      setLoading(false);
     }
-
   };
 
   return (
@@ -71,7 +75,7 @@ export default function Index() {
             placeholder="00000-000"
             placeholderTextColor="#666"
             keyboardType="numeric"
-            maxLength={9} // 🔥 agora aceita o hífen
+            maxLength={9}
             value={cep}
             onChangeText={(text) => {
               const formatted = formatCep(text);
@@ -80,8 +84,27 @@ export default function Index() {
           />
 
           <TouchableOpacity style={styles.botao} onPress={buscarCep}>
-            <Text style={styles.botaoTexto}>Buscar</Text>
+            <Text style={styles.botaoTexto}>
+              {loading ? "Buscando..." : "Buscar"}
+            </Text>
           </TouchableOpacity>
+
+          {/* 🔴 mensagem de erro */}
+          {erro !== "" && (
+            <Text style={styles.erro}>{erro}</Text>
+          )}
+
+          {/* ✅ resultado */}
+          {endereco && (
+            <View style={styles.resultado}>
+              <Text style={styles.item}>CEP: {endereco.cep}</Text>
+              <Text style={styles.item}>Rua: {endereco.logradouro}</Text>
+              <Text style={styles.item}>Bairro: {endereco.bairro}</Text>
+              <Text style={styles.item}>Cidade: {endereco.localidade}</Text>
+              <Text style={styles.item}>UF: {endereco.uf}</Text>
+              <Text style={styles.item}>DDD: {endereco.ddd}</Text>
+            </View>
+          )}
 
         </View>
 
@@ -145,6 +168,25 @@ const styles = StyleSheet.create({
   botaoTexto: {
     color: "#fff",
     fontWeight: "bold"
+  },
+
+  erro: {
+    color: "red",
+    marginTop: 10,
+    textAlign: "center",
+    fontWeight: "bold"
+  },
+
+  resultado: {
+    marginTop: 20,
+    borderTopWidth: 1,
+    borderTopColor: "#eee",
+    paddingTop: 15
+  },
+
+  item: {
+    fontSize: 16,
+    marginBottom: 8
   }
 
 });
